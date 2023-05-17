@@ -3,23 +3,23 @@
 #include<math.h>
 #define MAXARGS   128
 
-char HOME[MAXLINE]; //½©ÀÌ ½ÃÀÛÇÏ´Â È¨ µğ·ºÅä¸®ÀÇ Á¤º¸
-char PATH[MAXARGS] = "/usr/bin/"; //execve·Î ÇÔ¼ö¸¦ °¡Á®¿Ã À§Ä¡
+char HOME[MAXLINE]; //ì‰˜ì´ ì‹œì‘í•˜ëŠ” í™ˆ ë””ë ‰í† ë¦¬ì˜ ì •ë³´
+char PATH[MAXARGS] = "/bin/"; //execveë¡œ í•¨ìˆ˜ë¥¼ ê°€ì ¸ì˜¬ ìœ„ì¹˜
 
 void eval(char* cmdline);
 int parseline(char* buf, char** argv, int* argc, int* index);
 int builtin_command(char** argv);
-void command_history(); //builtin_command·Î 
+void command_history(); //builtin_commandë¡œ 
 void history_option1(char* string);
 int history_option2(char* string, int number);
-void command_echo(); //echo¿¡¼­ µû¿ÈÇ¥¸¦ Á¦¿ÜÇÏ°í Ãâ·ÂÇÏ´Â °ÍÀ» ¹İ¿µÇÏ±â À§ÇÑ ÇÔ¼ö
-void save_command_history(); //ÀÔ·ÂµÈ command¿¡ ´ëÇØ¼­ Áßº¹ ¿¹¿Ü Ã³¸®ÇØ¼­ ÀúÀåÇÏ´Â ÇÔ¼ö
+void command_echo(); //echoì—ì„œ ë”°ì˜´í‘œë¥¼ ì œì™¸í•˜ê³  ì¶œë ¥í•˜ëŠ” ê²ƒì„ ë°˜ì˜í•˜ê¸° ìœ„í•œ í•¨ìˆ˜
+void save_command_history(); //ì…ë ¥ëœ commandì— ëŒ€í•´ì„œ ì¤‘ë³µ ì˜ˆì™¸ ì²˜ë¦¬í•´ì„œ ì €ì¥í•˜ëŠ” í•¨ìˆ˜
 void pipe_command(char* argv[][MAXARGS], int cnt, int fin);
-int test_history(char** argv, int argc, char* cmdline); //!!³ª !#ÀÌ ÀÖ´ÂÁö È®ÀÎÇÏ°í ´ëÃ¼ÇÏ´Â ÇÔ¼ö
+int test_history(char** argv, int argc, char* cmdline); //!!ë‚˜ !#ì´ ìˆëŠ”ì§€ í™•ì¸í•˜ê³  ëŒ€ì²´í•˜ëŠ” í•¨ìˆ˜
 
 int main() {
     char cmdline[MAXLINE]; //command line
-    getcwd(HOME, sizeof(HOME)); //½©ÀÌ ½ÃÀÛÇßÀ» ¶§ÀÇ µğ·ºÅä¸® À§Ä¡¸¦ HOMEÀ¸·Î ¼³Á¤
+    getcwd(HOME, sizeof(HOME)); //ì‰˜ì´ ì‹œì‘í–ˆì„ ë•Œì˜ ë””ë ‰í† ë¦¬ ìœ„ì¹˜ë¥¼ HOMEìœ¼ë¡œ ì„¤ì •
 
     while (1) {
         printf("CSE4100-MP-P1> "); //Shell Prompt: print your prompt
@@ -37,7 +37,7 @@ void eval(char* cmdline) {
     char buf[MAXLINE];   //holds modified command line
     int bg;              //should the job run in bg(backgroud) or fg(frontgroud)?
     pid_t pid;           //process id
-    int argc = 0;        //command¿¡¼­ ³ª´« command ´ÜÀ§ÀÇ °³¼ö
+    int argc = 0;        //commandì—ì„œ ë‚˜ëˆˆ command ë‹¨ìœ„ì˜ ê°œìˆ˜
     
     int indx[MAXARGS] = { 0, };
     int count = 0;
@@ -45,14 +45,14 @@ void eval(char* cmdline) {
     int status;
 
     strcpy(buf, cmdline); //copy command line into buf
-    bg = parseline(buf, argv, &argc, indx); //2. PARSING(ÆÄÀÌÇÁ ¶óÀÎ °í·Á Æ÷ÇÔ)
+    bg = parseline(buf, argv, &argc, indx); //2. PARSING(íŒŒì´í”„ ë¼ì¸ ê³ ë ¤ í¬í•¨)
     
     if (argv[0] == NULL) return; //ignore empty lines
 
-    if (test_history(argv, argc, cmdline)) { //argv[0]¿¡ !!ÀÌ³ª !#ÀÌ ÀÖ´ÂÁö °Ë»ç --> ÀÖÀ¸¸é ÇØ´ç ¶óÀÎÀ¸·Î ´ëÃ¼
+    if (test_history(argv, argc, cmdline)) { //argv[0]ì— !!ì´ë‚˜ !#ì´ ìˆëŠ”ì§€ ê²€ì‚¬ --> ìˆìœ¼ë©´ í•´ë‹¹ ë¼ì¸ìœ¼ë¡œ ëŒ€ì²´
         argc = 0;
         strcpy(buf, cmdline); //copy command line into buf
-        bg = parseline(buf, argv, &argc, indx); //2-1. PARSING AGAIN(ÆÄÀÌÇÁ ¶óÀÎ °í·Á Æ÷ÇÔ)
+        bg = parseline(buf, argv, &argc, indx); //2-1. PARSING AGAIN(íŒŒì´í”„ ë¼ì¸ ê³ ë ¤ í¬í•¨)
         if (argv[0] == NULL) return; //ignore empty lines
     };
     
@@ -77,7 +77,7 @@ void eval(char* cmdline) {
                 exit(0); //child process terminate
             }
             int status;
-            if (Waitpid(pid, &status, 0) < 0) //¿©±â¼­ childÀÇ pid¸¦ ³Ö¾úÀ¸´Ï ³¡³¯¶§±îÁö parent process´Â ´ë±â
+            if (Waitpid(pid, &status, 0) < 0) //ì—¬ê¸°ì„œ childì˜ pidë¥¼ ë„£ì—ˆìœ¼ë‹ˆ ëë‚ ë•Œê¹Œì§€ parent processëŠ” ëŒ€ê¸°
                 unix_error("waitfg: waitpid error");
 
             save_command_history(cmdline);
@@ -86,19 +86,19 @@ void eval(char* cmdline) {
 
         if (strcmp(argv[0], "history") == 0) {
             command_history();
-            save_command_history(cmdline); //history´Â ÀúÀå
+            save_command_history(cmdline); //historyëŠ” ì €ì¥
             return;
         }
 
         if (!builtin_command(argv)) { //examine if the command is builtin command
             if ((pid = Fork()) == 0) {
                 if (execve(strcat(PATH, argv[0]), argv, environ) < 0) {
-                    printf("%s: %s\n", argv[0], strerror(errno)); //ÇØ´ç ºÎºĞÀÌ ¿À·ù ¸Ş½ÃÁö Ãâ·ÂÇÏ´Â ºÎºĞ
+                    printf("%s: %s\n", argv[0], strerror(errno)); //í•´ë‹¹ ë¶€ë¶„ì´ ì˜¤ë¥˜ ë©”ì‹œì§€ ì¶œë ¥í•˜ëŠ” ë¶€ë¶„
                     exit(0);
                 }
             }
             int status;
-            if (Waitpid(pid, &status, 0) < 0) //¿©±â¼­ childÀÇ pid¸¦ ³Ö¾úÀ¸´Ï ³¡³¯¶§±îÁö parent process´Â ´ë±â
+            if (Waitpid(pid, &status, 0) < 0) //ì—¬ê¸°ì„œ childì˜ pidë¥¼ ë„£ì—ˆìœ¼ë‹ˆ ëë‚ ë•Œê¹Œì§€ parent processëŠ” ëŒ€ê¸°
                 unix_error("waitfg: waitpid error");
         }
 
@@ -110,7 +110,7 @@ int builtin_command(char** argv) { //if built-in command, return 1
     if (strcmp(argv[0], "exit") == 0) exit(0); //need not to return(shell done)
 
     if (strcmp(argv[0], "cd") == 0) {
-        if (argv[1] == NULL || !strcmp(argv[1], "$HOME")) argv[1] = HOME; //±×³É cd¸¸ ÀÖ°Å³ª cd $HOMEÀÌ µé¾î¿ÔÀ» ¶§ ¸¸µç ½© ±âÁØ È¨ µğ·ºÅä¸®·Î ÀÌµ¿
+        if (argv[1] == NULL || !strcmp(argv[1], "$HOME")) argv[1] = HOME; //ê·¸ëƒ¥ cdë§Œ ìˆê±°ë‚˜ cd $HOMEì´ ë“¤ì–´ì™”ì„ ë•Œ ë§Œë“  ì‰˜ ê¸°ì¤€ í™ˆ ë””ë ‰í† ë¦¬ë¡œ ì´ë™
         if (chdir(argv[1]) != 0) //chdir function(=change directory): if success to move, return 0, else return -1
             fprintf(stderr, "%s: No such file or directory\n", argv[1]);
         return 1;
@@ -122,48 +122,48 @@ int builtin_command(char** argv) { //if built-in command, return 1
 }
 
 int test_history(char** argv, int argc, char* cmdline) {
-    char string[MAXLINE]; //±ä Ä¿¸Çµå ¶óÀÎÀÌ ±×´ë·Î µé¾î¿Ã ¼öµµ ÀÖ±â ¶§¹®
+    char string[MAXLINE]; //ê¸´ ì»¤ë§¨ë“œ ë¼ì¸ì´ ê·¸ëŒ€ë¡œ ë“¤ì–´ì˜¬ ìˆ˜ë„ ìˆê¸° ë•Œë¬¸
     char temp[MAXARGS];
     int j = 0;
-    char save[MAXARGS] = { 0 }; //! µÚ¿¡ ³ª¿À´Â charÇü ¼ıÀÚ¸¦ ÀúÀåÇÏ´Â º¯¼ö
-    int count = 0; //! µÚ¿¡ ³ª¿À´Â charÇü ¼ıÀÚÀÇ °¹¼ö
-    int number = 0; //! µÚ¿¡ ³ª¿À´Â charÇü ¼ıÀÚ¸¦ intÇüÀ¸·Î ÀúÀåÇÑ °ª
-    char new_cmdline[MAXLINE]; //»õ·Î ¸¸µé¾îÁø Ä¿¸Çµå¸¦ ÀúÀåÇÒ º¯¼ö
+    char save[MAXARGS] = { 0 }; //! ë’¤ì— ë‚˜ì˜¤ëŠ” charí˜• ìˆ«ìë¥¼ ì €ì¥í•˜ëŠ” ë³€ìˆ˜
+    int count = 0; //! ë’¤ì— ë‚˜ì˜¤ëŠ” charí˜• ìˆ«ìì˜ ê°¯ìˆ˜
+    int number = 0; //! ë’¤ì— ë‚˜ì˜¤ëŠ” charí˜• ìˆ«ìë¥¼ intí˜•ìœ¼ë¡œ ì €ì¥í•œ ê°’
+    char new_cmdline[MAXLINE]; //ìƒˆë¡œ ë§Œë“¤ì–´ì§„ ì»¤ë§¨ë“œë¥¼ ì €ì¥í•  ë³€ìˆ˜
     int change = 0;
 
     int len = strlen(argv[0]);
     for (int i = 0; i < len; i++) {
-        if ((i < len - 1) && argv[0][i] == '!') { //!ÀÌ Ã³À½ ³ª¿Â °æ¿ì
-            if ((i + 1 < len) && argv[0][i + 1] == '!') { //!!ÀÌ ¸ğµÎ ³ª¿Â °æ¿ì
+        if ((i < len - 1) && argv[0][i] == '!') { //!ì´ ì²˜ìŒ ë‚˜ì˜¨ ê²½ìš°
+            if ((i + 1 < len) && argv[0][i + 1] == '!') { //!!ì´ ëª¨ë‘ ë‚˜ì˜¨ ê²½ìš°
                 history_option1(string);
-                string[strlen(string) - 1] = '\0'; //stringÀ¸·Î °¡Á®¿Â Ä¿¸Çµå ¶óÀÎÀÇ ¸¶Áö¸·¿¡ ÀÖÀ» °³Çà¹®ÀÚ¸¦ \0À¸·Î ´ëÃ¼
-                argv[0][i] = '\0'; //!°¡ ½ÃÀÛÇÏ´Â ºÎºĞÀ» °­Á¦·Î ¹®Àå ³¡À¸·Î ¸¸µê
-                strncpy(temp, &argv[0][i + 2], sizeof(argv[0]) - (i + 2)); //!°¡ ³¡³ª´Â ºÎºĞºÎÅÍ ³¡±îÁö¸¦ temp¿¡ º¹»ç
+                string[strlen(string) - 1] = '\0'; //stringìœ¼ë¡œ ê°€ì ¸ì˜¨ ì»¤ë§¨ë“œ ë¼ì¸ì˜ ë§ˆì§€ë§‰ì— ìˆì„ ê°œí–‰ë¬¸ìë¥¼ \0ìœ¼ë¡œ ëŒ€ì²´
+                argv[0][i] = '\0'; //!ê°€ ì‹œì‘í•˜ëŠ” ë¶€ë¶„ì„ ê°•ì œë¡œ ë¬¸ì¥ ëìœ¼ë¡œ ë§Œë“¦
+                strncpy(temp, &argv[0][i + 2], sizeof(argv[0]) - (i + 2)); //!ê°€ ëë‚˜ëŠ” ë¶€ë¶„ë¶€í„° ëê¹Œì§€ë¥¼ tempì— ë³µì‚¬
                 strcat(argv[0], string);
                 strcat(argv[0], temp);
 
-                change = 1; //º¯°æµÇ¾ú´Ù´Â flag
+                change = 1; //ë³€ê²½ë˜ì—ˆë‹¤ëŠ” flag
             }
-            else if ((i + 1 < len) && argv[0][i + 1] >= 48 && argv[0][i + 1] <= 57) { //´ÙÀ½Ä­¿¡ ¼ıÀÚ°¡ ³ª¿À¸é
+            else if ((i + 1 < len) && argv[0][i + 1] >= 48 && argv[0][i + 1] <= 57) { //ë‹¤ìŒì¹¸ì— ìˆ«ìê°€ ë‚˜ì˜¤ë©´
                 j = i + 1;
-                while ((j < len) && argv[0][j] >= 48 && argv[0][j] <= 57) { //¼ıÀÚ°¡ ³ª¿À´Â°Ô ¸ØÃâ ¶§±îÁö
+                while ((j < len) && argv[0][j] >= 48 && argv[0][j] <= 57) { //ìˆ«ìê°€ ë‚˜ì˜¤ëŠ”ê²Œ ë©ˆì¶œ ë•Œê¹Œì§€
                     save[count++] = argv[0][j++];
                 }
                 number = atoi(save);
                 if (history_option2(string, number) == 1) {
-                    string[strlen(string) - 1] = '\0'; //stringÀ¸·Î °¡Á®¿Â Ä¿¸Çµå ¶óÀÎÀÇ ¸¶Áö¸·¿¡ ÀÖÀ» °³Çà¹®ÀÚ¸¦ \0À¸·Î ´ëÃ¼
-                    argv[0][i] = '\0'; //!°¡ ½ÃÀÛÇÏ´Â ºÎºĞÀ» °­Á¦·Î ¹®Àå ³¡À¸·Î ¸¸µê
-                    strncpy(temp, &argv[0][j], sizeof(argv[0]) - (j - 3)); //!#ÀÌ ³¡³ª´Â ºÎºĞºÎÅÍ ³¡±îÁö¸¦ temp¿¡ º¹»ç
+                    string[strlen(string) - 1] = '\0'; //stringìœ¼ë¡œ ê°€ì ¸ì˜¨ ì»¤ë§¨ë“œ ë¼ì¸ì˜ ë§ˆì§€ë§‰ì— ìˆì„ ê°œí–‰ë¬¸ìë¥¼ \0ìœ¼ë¡œ ëŒ€ì²´
+                    argv[0][i] = '\0'; //!ê°€ ì‹œì‘í•˜ëŠ” ë¶€ë¶„ì„ ê°•ì œë¡œ ë¬¸ì¥ ëìœ¼ë¡œ ë§Œë“¦
+                    strncpy(temp, &argv[0][j], sizeof(argv[0]) - (j - 3)); //!#ì´ ëë‚˜ëŠ” ë¶€ë¶„ë¶€í„° ëê¹Œì§€ë¥¼ tempì— ë³µì‚¬
                     strcat(argv[0], string);
                     strcat(argv[0], temp);
 
-                    change = 1; //º¯°æµÇ¾ú´Ù´Â flag
+                    change = 1; //ë³€ê²½ë˜ì—ˆë‹¤ëŠ” flag
                 }
             }
         }
     }
 
-    if (change == 1) { //argv°¡ !!³ª !#¿¡ ÀÇÇØ º¯°æµÇ¾ú´Ù¸é, new cmdlineÀ» ¸¸µé¾î¼­ ±âÁ¸ cmdlineÀ» °»½Å
+    if (change == 1) { //argvê°€ !!ë‚˜ !#ì— ì˜í•´ ë³€ê²½ë˜ì—ˆë‹¤ë©´, new cmdlineì„ ë§Œë“¤ì–´ì„œ ê¸°ì¡´ cmdlineì„ ê°±ì‹ 
         strcpy(new_cmdline, argv[0]);
         for (int i = 1; i < argc; i++) {
             strcat(new_cmdline, " ");
@@ -173,7 +173,7 @@ int test_history(char** argv, int argc, char* cmdline) {
 
         strcpy(cmdline, new_cmdline);
 
-        if (argc == 1) printf("%s", cmdline); //´ëÃ¼µÈ ÈÄ, ±âÁ¸ÀÇ argv[0] 1°³ÀÇ Ä¿¸àµå¸¸ ÀÖ´Â °æ¿ì¿¡´Â ½ÇÇàµÉ Ä¿¸àµå¸¦ ÇÑ¹ø ¶ç¿öÁÖ¾î¾ß ÇÔ
+        if (argc == 1) printf("%s", cmdline); //ëŒ€ì²´ëœ í›„, ê¸°ì¡´ì˜ argv[0] 1ê°œì˜ ì»¤ë©˜ë“œë§Œ ìˆëŠ” ê²½ìš°ì—ëŠ” ì‹¤í–‰ë  ì»¤ë©˜ë“œë¥¼ í•œë²ˆ ë„ì›Œì£¼ì–´ì•¼ í•¨
 
         return 1;
     }
@@ -182,7 +182,7 @@ int test_history(char** argv, int argc, char* cmdline) {
 
 void command_history() {
     char str[MAXLINE] = { 0 };
-    char history_path[MAXLINE] = { 0, }; //È¨ µğ·ºÅä¸®¿¡ .history ÆÄÀÏÀÌ ÀÖ´ÂÁö Ã¼Å©ÇÏ±â À§ÇÑ °æ·Î
+    char history_path[MAXLINE] = { 0, }; //í™ˆ ë””ë ‰í† ë¦¬ì— .history íŒŒì¼ì´ ìˆëŠ”ì§€ ì²´í¬í•˜ê¸° ìœ„í•œ ê²½ë¡œ
     strcpy(history_path, HOME);
     strcat(history_path, "/.history");
 
@@ -197,18 +197,18 @@ void command_history() {
     while (fgets(line, MAXLINE, fp) != NULL) {
         printf("%d  %s", count++, line);
     }
-    if (!strcmp(line, "history\n")) { //¸¶Áö¸· ÁÙÀÌ history¿´À¸¸é ¸¶Áö¸· ¶óÀÎ history Ãâ·Â ¾ÈÇÏ°í
+    if (!strcmp(line, "history\n")) { //ë§ˆì§€ë§‰ ì¤„ì´ historyì˜€ìœ¼ë©´ ë§ˆì§€ë§‰ ë¼ì¸ history ì¶œë ¥ ì•ˆí•˜ê³ 
         //do nothing
     }
-    else { //¸¶Áö¸· ÁÙÀÌ history°¡ ¾Æ´Ï¿´À¸¸é, ¸¶Áö¸· ¶óÀÎ history Ãâ·Â
+    else { //ë§ˆì§€ë§‰ ì¤„ì´ historyê°€ ì•„ë‹ˆì˜€ìœ¼ë©´, ë§ˆì§€ë§‰ ë¼ì¸ history ì¶œë ¥
         printf("%d  %s\n", count, "history");
     }
 
     fclose(fp);
 }
 
-void history_option1(char* string) { // !!ÀÎ °æ¿ì, ¸¶Áö¸· commandlineÀ¸·Î ´ëÃ¼
-    char history_path[MAXLINE] = { 0, }; // È¨ µğ·ºÅä¸®¿¡ .history ÆÄÀÏÀÌ ÀÖ´ÂÁö Ã¼Å©ÇÏ±â À§ÇÑ °æ·Î
+void history_option1(char* string) { // !!ì¸ ê²½ìš°, ë§ˆì§€ë§‰ commandlineìœ¼ë¡œ ëŒ€ì²´
+    char history_path[MAXLINE] = { 0, }; // í™ˆ ë””ë ‰í† ë¦¬ì— .history íŒŒì¼ì´ ìˆëŠ”ì§€ ì²´í¬í•˜ê¸° ìœ„í•œ ê²½ë¡œ
     strcpy(history_path, HOME);
     strcat(history_path, "/.history");
 
@@ -219,19 +219,19 @@ void history_option1(char* string) { // !!ÀÎ °æ¿ì, ¸¶Áö¸· commandlineÀ¸·Î ´ëÃ¼
         return;
     }
     int cnt = 1;
-    fseek(fp, -2, SEEK_END); // ÆÄÀÏÀÇ ³¡¿¡¼­ºÎÅÍ ÀĞ¾îµéÀÌ±â(¸¶Áö¸· °³ÇàÀº °Ç³Ê¶Ù°í)
+    fseek(fp, -2, SEEK_END); // íŒŒì¼ì˜ ëì—ì„œë¶€í„° ì½ì–´ë“¤ì´ê¸°(ë§ˆì§€ë§‰ ê°œí–‰ì€ ê±´ë„ˆë›°ê³ )
     char c = fgetc(fp);
     while (c != '\n' && ftell(fp) > 0) {
         fseek(fp, -2, SEEK_CUR);
         c = fgetc(fp);
     }
 
-    fgets(string, MAXLINE, fp); // ¸¶Áö¸· ÁÙÀ» str¿¡ ÀúÀå
+    fgets(string, MAXLINE, fp); // ë§ˆì§€ë§‰ ì¤„ì„ strì— ì €ì¥
     fclose(fp);
 }
 
-int history_option2(char* string, int number) { //!#ÀÎ °æ¿ì, Æ¯Á¤ ¶óÀÎÀÇ command·Î ´ëÃ¼
-    char history_path[MAXLINE] = { 0, }; //È¨ µğ·ºÅä¸®¿¡ .history ÆÄÀÏÀÌ ÀÖ´ÂÁö Ã¼Å©ÇÏ±â À§ÇÑ °æ·Î
+int history_option2(char* string, int number) { //!#ì¸ ê²½ìš°, íŠ¹ì • ë¼ì¸ì˜ commandë¡œ ëŒ€ì²´
+    char history_path[MAXLINE] = { 0, }; //í™ˆ ë””ë ‰í† ë¦¬ì— .history íŒŒì¼ì´ ìˆëŠ”ì§€ ì²´í¬í•˜ê¸° ìœ„í•œ ê²½ë¡œ
     strcpy(history_path, HOME);
     strcat(history_path, "/.history");
 
@@ -243,18 +243,18 @@ int history_option2(char* string, int number) { //!#ÀÎ °æ¿ì, Æ¯Á¤ ¶óÀÎÀÇ command
     }
 
     int line_count = 0;
-    while (fgets(string, MAXLINE, fp) != NULL) { //.history ÆÄÀÏ¿¡ ¸î ÁÙ±îÁö ÀÖ´ÂÁö ÆÄ¾Ç
+    while (fgets(string, MAXLINE, fp) != NULL) { //.history íŒŒì¼ì— ëª‡ ì¤„ê¹Œì§€ ìˆëŠ”ì§€ íŒŒì•…
         line_count++;
     }
 
-    if (line_count < number) { //ÁÖ¾îÁø number°¡ history log¿¡ ¾ø´Â ¶óÀÎ ³Ñ¹ö¸é ¿À·ù Ãâ·Â
+    if (line_count < number) { //ì£¼ì–´ì§„ numberê°€ history logì— ì—†ëŠ” ë¼ì¸ ë„˜ë²„ë©´ ì˜¤ë¥˜ ì¶œë ¥
         fprintf(stderr, "Not valid line number\n");
-        fclose(fp); //ÆÄÀÏÀ» ´İ°í
-        return -1; //¿¡·¯ Á¾·á
+        fclose(fp); //íŒŒì¼ì„ ë‹«ê³ 
+        return -1; //ì—ëŸ¬ ì¢…ë£Œ
     }
 
     line_count = 0;
-    fseek(fp, 0, SEEK_SET); //´Ù½Ã ÆÄÀÏ ¸Ç ¾ÕÀ¸·Î ÀÌµ¿
+    fseek(fp, 0, SEEK_SET); //ë‹¤ì‹œ íŒŒì¼ ë§¨ ì•ìœ¼ë¡œ ì´ë™
     while (fgets(string, MAXLINE, fp) != NULL) {
         line_count++;
         if (line_count == number) {
@@ -263,26 +263,26 @@ int history_option2(char* string, int number) { //!#ÀÎ °æ¿ì, Æ¯Á¤ ¶óÀÎÀÇ command
     }
 
     fclose(fp);
-    return 1; //º¯°æ ÈÄ Á¾·á
+    return 1; //ë³€ê²½ í›„ ì¢…ë£Œ
 }
 
 void save_command_history(char* cmdline) {
     char str[MAXLINE] = { 0 };
-    char history_path[MAXLINE] = { 0, }; //È¨ µğ·ºÅä¸®¿¡ .history ÆÄÀÏÀÌ ÀÖ´ÂÁö Ã¼Å©ÇÏ±â À§ÇÑ °æ·Î
+    char history_path[MAXLINE] = { 0, }; //í™ˆ ë””ë ‰í† ë¦¬ì— .history íŒŒì¼ì´ ìˆëŠ”ì§€ ì²´í¬í•˜ê¸° ìœ„í•œ ê²½ë¡œ
     strcpy(history_path, HOME);
     strcat(history_path, "/.history");
 
     FILE* fp; char* buf = NULL;
 
-    //1. ÆÄÀÏÀÌ ÀÖ´ÂÁö È®ÀÎ
+    //1. íŒŒì¼ì´ ìˆëŠ”ì§€ í™•ì¸
     fp = fopen(history_path, "r");
-    if (fp != NULL) { //ÆÄÀÏÀÌ ÀÖ´Â °æ¿ì
+    if (fp != NULL) { //íŒŒì¼ì´ ìˆëŠ” ê²½ìš°
         long int file_size;  int count = 0;
 
-        fseek(fp, 0, SEEK_END); //ÆÄÀÏÀÇ Å©±â ±¸ÇÏ±â
+        fseek(fp, 0, SEEK_END); //íŒŒì¼ì˜ í¬ê¸° êµ¬í•˜ê¸°
         file_size = ftell(fp);
 
-        buf = (char*)malloc(file_size + 1); //ÆÄÀÏ ³¡¿¡¼­ºÎÅÍ ÀĞ¾îµéÀÌ±â
+        buf = (char*)malloc(file_size + 1); //íŒŒì¼ ëì—ì„œë¶€í„° ì½ì–´ë“¤ì´ê¸°
         fseek(fp, -1, SEEK_END);
         int i = 0;
 
@@ -299,7 +299,7 @@ void save_command_history(char* cmdline) {
         buf[i] = '\0';
 
 
-        int len = strlen(buf); // ¼ø¼­¸¦ µÚÁıÀ½
+        int len = strlen(buf); // ìˆœì„œë¥¼ ë’¤ì§‘ìŒ
         for (int i = 0; i < len / 2; i++) {
             char temp = buf[i];
             buf[i] = buf[len - i - 1];
@@ -308,13 +308,13 @@ void save_command_history(char* cmdline) {
 
         fclose(fp);
 
-        if (strcmp(buf, cmdline) == 0) { //2-1. Áßº¹ÀÌ¸é ±×³É Á¾·á
+        if (strcmp(buf, cmdline) == 0) { //2-1. ì¤‘ë³µì´ë©´ ê·¸ëƒ¥ ì¢…ë£Œ
             free(buf);
             return;
         }
     }
 
-    //2-2. ÆÄÀÏÀÌ ¾ø°Å³ª Áßº¹ÀÌ ¾Æ´Ï¸é, ¸í·É¾îÀÇ ½ÇÇà ¿©ºÎ »ó°ü¾øÀÌ ÀúÀå
+    //2-2. íŒŒì¼ì´ ì—†ê±°ë‚˜ ì¤‘ë³µì´ ì•„ë‹ˆë©´, ëª…ë ¹ì–´ì˜ ì‹¤í–‰ ì—¬ë¶€ ìƒê´€ì—†ì´ ì €ì¥
     if (buf != NULL) free(buf);
 
     fp = fopen(history_path, "a");
@@ -326,10 +326,10 @@ void save_command_history(char* cmdline) {
     fclose(fp);
 }
 
-//echo¿¡¼­ µû¿ÈÇ¥¸¦ Á¦¿ÜÇÏ°í Ãâ·ÂÇÏ´Â °ÍÀ» ¹İ¿µÇÏ±â À§ÇÑ ÇÔ¼ö
+//echoì—ì„œ ë”°ì˜´í‘œë¥¼ ì œì™¸í•˜ê³  ì¶œë ¥í•˜ëŠ” ê²ƒì„ ë°˜ì˜í•˜ê¸° ìœ„í•œ í•¨ìˆ˜
 void command_echo(char** argv, int argc) {
-    char str[MAXLINE] = { 0 }; // str ÃÊ±âÈ­
-    char temp[MAXLINE] = { 0 }; // temp ÃÊ±âÈ­
+    char str[MAXLINE] = { 0 }; // str ì´ˆê¸°í™”
+    char temp[MAXLINE] = { 0 }; // temp ì´ˆê¸°í™”
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
             for (int j = 0; j < strlen(argv[i]); j++) {
@@ -339,7 +339,7 @@ void command_echo(char** argv, int argc) {
                     strcat(argv[i], temp);
                 }
             }
-            if (strlen(argv[i]) + strlen(str) + 1 >= MAXLINE) { // ÃÖ´ë ±æÀÌ ÃÊ°ú ½Ã ¿¹¿Ü Ã³¸®
+            if (strlen(argv[i]) + strlen(str) + 1 >= MAXLINE) { // ìµœëŒ€ ê¸¸ì´ ì´ˆê³¼ ì‹œ ì˜ˆì™¸ ì²˜ë¦¬
                 fprintf(stderr, "command_echo: argument too long\n");
                 return;
             }
@@ -360,8 +360,8 @@ int parseline(char* buf, char** argv, int* argc, int* index) {
     int i;
     char* quote;
 
-    buf[strlen(buf) - 1] = ' ';  //command³¡¿¡ ÀÖ´Â °³Çà¹®ÀÚ('\n')¸¦ °ø¹éÀ¸·Î ´ëÃ¼
-    while (*buf && (*buf == ' ')) //Ã³À½ ±ÛÀÚ°¡ ³ª¿À±â ÀüÀÇ °ø¹éµéÀº ¹«½ÃÇÑ´Ù
+    buf[strlen(buf) - 1] = ' ';  //commandëì— ìˆëŠ” ê°œí–‰ë¬¸ì('\n')ë¥¼ ê³µë°±ìœ¼ë¡œ ëŒ€ì²´
+    while (*buf && (*buf == ' ')) //ì²˜ìŒ ê¸€ìê°€ ë‚˜ì˜¤ê¸° ì „ì˜ ê³µë°±ë“¤ì€ ë¬´ì‹œí•œë‹¤
         buf++;
 
     int blank_cnt = 0;
@@ -402,46 +402,46 @@ int parseline(char* buf, char** argv, int* argc, int* index) {
 }
 
 void pipe_command(char* argv[][MAXARGS], int cnt, int fin) {
-    int pipefd[2]; //ÆÄÀÏ½ºÅ©¸³ÅÍ¸¦ ÀúÀåÇÏ´Â º¯¼ö
+    int pipefd[2]; //íŒŒì¼ìŠ¤í¬ë¦½í„°ë¥¼ ì €ì¥í•˜ëŠ” ë³€ìˆ˜
     pid_t pid;
 
-    if (argv[cnt + 1][0]) { //¸¶Áö¸· ¸í·É¾î°¡ ¾Æ´Ñ °æ¿ì
-        if (pipe(pipefd) < 0) { //ÆÄÀÌÇÁ¸¦ ¸¸µé¾î fd¿¡ ½ºÅ©¸³ÅÍ¸¦ ÀúÀå
+    if (argv[cnt + 1][0]) { //ë§ˆì§€ë§‰ ëª…ë ¹ì–´ê°€ ì•„ë‹Œ ê²½ìš°
+        if (pipe(pipefd) < 0) { //íŒŒì´í”„ë¥¼ ë§Œë“¤ì–´ fdì— ìŠ¤í¬ë¦½í„°ë¥¼ ì €ì¥
             printf("pipe error!\n");
             exit(1);
         }
-        if ((pid = fork()) == 0) { //ÀÚ½Ä ÇÁ·Î¼¼½º¸¦ ¸¸µé°í
+        if ((pid = fork()) == 0) { //ìì‹ í”„ë¡œì„¸ìŠ¤ë¥¼ ë§Œë“¤ê³ 
             close(pipefd[0]);
             if (fin != STDIN_FILENO) { 
-                dup2(fin, STDIN_FILENO); //ÀÌÀü ÇÁ·Î¼¼½ºÀÇ ÀÔ·Â¿ë ÆÄÀÏ µğ½ºÅ©¸³ÅÍ¸¦ Ç¥ÁØ ÀÔ·ÂÀ¸·Î ¿¬°á
+                dup2(fin, STDIN_FILENO); //ì´ì „ í”„ë¡œì„¸ìŠ¤ì˜ ì…ë ¥ìš© íŒŒì¼ ë””ìŠ¤í¬ë¦½í„°ë¥¼ í‘œì¤€ ì…ë ¥ìœ¼ë¡œ ì—°ê²°
                 close(fin);
             }
-            dup2(pipefd[1], STDOUT_FILENO); //¾²±â¿ë ÆÄÀÏ µğ½ºÅ©¸³ÅÍ¸¦ Ç¥ÁØ Ãâ·ÂÀ¸·Î ¿¬°á
+            dup2(pipefd[1], STDOUT_FILENO); //ì“°ê¸°ìš© íŒŒì¼ ë””ìŠ¤í¬ë¦½í„°ë¥¼ í‘œì¤€ ì¶œë ¥ìœ¼ë¡œ ì—°ê²°
             close(pipefd[1]);
 
-            if (!builtin_command(argv[cnt])) { //½ÇÇà
+            if (!builtin_command(argv[cnt])) { //ì‹¤í–‰
                 if (execve(strcat(PATH, argv[cnt][0]), argv[cnt], environ) < 0) {
-                    printf("%s: %s\n", argv[cnt][0], strerror(errno)); //ÇØ´ç ºÎºĞÀÌ ¿À·ù ¸Ş½ÃÁö Ãâ·ÂÇÏ´Â ºÎºĞ
+                    printf("%s: %s\n", argv[cnt][0], strerror(errno)); //í•´ë‹¹ ë¶€ë¶„ì´ ì˜¤ë¥˜ ë©”ì‹œì§€ ì¶œë ¥í•˜ëŠ” ë¶€ë¶„
                     exit(0);
                 }
             }
             exit(0);
         }
         close(pipefd[1]);
-        pipe_command(argv, cnt + 1, pipefd[0]); //´ÙÀ½ ¸í·É¾î ½ÇÇà
+        pipe_command(argv, cnt + 1, pipefd[0]); //ë‹¤ìŒ ëª…ë ¹ì–´ ì‹¤í–‰
         int status;
         if (Waitpid(pid, &status, 0) < 0)
             unix_error("waitfg: waitpid error\n");
     }
-    else { //¸¶Áö¸· ¸í·É¾îÀÎ °æ¿ì
-        dup2(fin, STDIN_FILENO); //ÀÌÀü²¨ÀÇ ÆÄÀÏ ½ºÅ©¸³ÅÍ¸¦ Ç¥ÁØ ÀÔ·ÂÀ¸·Î ¹Ş¾Æ¼­
+    else { //ë§ˆì§€ë§‰ ëª…ë ¹ì–´ì¸ ê²½ìš°
+        dup2(fin, STDIN_FILENO); //ì´ì „êº¼ì˜ íŒŒì¼ ìŠ¤í¬ë¦½í„°ë¥¼ í‘œì¤€ ì…ë ¥ìœ¼ë¡œ ë°›ì•„ì„œ
         close(fin);
-        if (!builtin_command(argv[cnt])) { //¸¶Áö¸· ¸í·É¾î ½ÇÇà
+        if (!builtin_command(argv[cnt])) { //ë§ˆì§€ë§‰ ëª…ë ¹ì–´ ì‹¤í–‰
             if (execve(strcat(PATH, argv[cnt][0]), argv[cnt], environ) < 0) {
-                printf("%s: %s\n", argv[cnt][0], strerror(errno)); //ÇØ´ç ºÎºĞÀÌ ¿À·ù ¸Ş½ÃÁö Ãâ·ÂÇÏ´Â ºÎºĞ
+                printf("%s: %s\n", argv[cnt][0], strerror(errno)); //í•´ë‹¹ ë¶€ë¶„ì´ ì˜¤ë¥˜ ë©”ì‹œì§€ ì¶œë ¥í•˜ëŠ” ë¶€ë¶„
                 exit(0);
             }
         }
-        exit(0); //Á¾·á
+        exit(0); //ì¢…ë£Œ
     }
 }
