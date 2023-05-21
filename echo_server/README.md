@@ -27,6 +27,7 @@
 #### 실행 방식: (server-side) ./echo_server #port     (client-side) ./echo_client 127.0.0.1 #port   
 #### 장점: no process or thread control overhead
 #### 단점: more complex to code, hard to provide fine-grained concurrency
+![concurrent_event_fined.png](https://github.com/namkidong98/CSE3080-MultiCore_Programming/blob/main/echo_server/concurrent_event_finer-granualarity/concurrent_event_fined.PNG)
 
 <br/>
 
