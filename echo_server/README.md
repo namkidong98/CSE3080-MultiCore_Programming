@@ -19,6 +19,7 @@
 #### 실행 방식: (server-side) ./echo_server #port     (client-side) ./echo_client 127.0.0.1 #port   
 #### 장점: no process or thread control overhead(very low overhead)
 #### 단점: blocking problem(server가 clinet랑 연결되면 종료 전까지 대기하는 문제가 발생 --> concurrent가 제대로 실현되지 못함)
+![concurrent_event.png](https://github.com/namkidong98/CSE3080-MultiCore_Programming/blob/main/echo_server/concurrent_event/concurrent_event.PNG)
 
 <br/>
 
