@@ -32,9 +32,9 @@
 <br/>
 
 ## concurrent_thread: thread_based approach로 concurrent한 server 구현
-#### 구현방식: 
+#### 구현방식: thread를 create하여 echo를 실행하고 detach를 이용하여 자동적으로 reaping하게 한다
 #### 실행 방식: (server-side) ./echo_server #port     (client-side) ./echo_client 127.0.0.1 #port   
 #### 장점: easy to share data between threads, threads are more efficient than processes
 #### 단점: difficult to debug
-
+![concurrent_thread.png](https://github.com/namkidong98/CSE3080-MultiCore_Programming/blob/main/echo_server/concurrent_thread/concurrent_thread.PNG)
 <br/>
